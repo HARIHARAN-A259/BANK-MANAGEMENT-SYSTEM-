@@ -1,10 +1,10 @@
-﻿   venv/
-   __pycache__/
-   .pytest_cache/
-   *.pyc
-   .env
-   *.db
-   *.db-shm
-   *.db-wal
-   output/
-   .vercel
+﻿venv/
+__pycache__/
+.pytest_cache/
+*.pyc
+.env
+*.db
+*.db-shm
+*.db-wal
+output/
+.vercel
