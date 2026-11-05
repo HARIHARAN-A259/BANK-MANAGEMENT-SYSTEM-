@@ -14,14 +14,61 @@ from app.db import get_db
 from app.dependencies import get_current_admin
 from app.models import Account, Admin, Transaction
 from app.schemas import (
-    AdminLoginRequest, AdminLoginResponse,
+    AdminLoginRequest, AdminRegisterRequest, AdminLoginResponse,
     AdminAccountOut, TotalDepositsResponse,
     MessageResponse,
     paise_to_rupees,
 )
-from app.security import verify_password, create_access_token
+from app.security import verify_password, hash_password, validate_password, create_access_token
 
 router = APIRouter(prefix="/admin", tags=["Admin"])
+
+
+# ---------------------------------------------------------------------------
+# GET /admin/status — Check if at least one admin account is configured
+# ---------------------------------------------------------------------------
+@router.get("/status", summary="Check if admin exists")
+def admin_status(db: Session = Depends(get_db)):
+    """Check if any admin account exists in the database."""
+    admin_count = db.query(Admin).count()
+    return {"configured": admin_count > 0, "admin_count": admin_count}
+
+
+# ---------------------------------------------------------------------------
+# POST /admin/register — Create a new Admin ID
+# ---------------------------------------------------------------------------
+@router.post("/register", response_model=AdminLoginResponse, summary="Create new Admin ID")
+def admin_register(req: AdminRegisterRequest, db: Session = Depends(get_db)):
+    """
+    Create a new Admin ID with username and password.
+    Enforces strong password rules. Returns an admin JWT upon creation.
+    """
+    try:
+        validate_password(req.password)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    existing = db.query(Admin).filter(func.lower(Admin.username) == req.username.lower()).first()
+    if existing:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Admin with ID '{req.username}' already exists.",
+        )
+
+    new_admin = Admin(
+        username=req.username,
+        password_hash=hash_password(req.password),
+    )
+    db.add(new_admin)
+    db.commit()
+    db.refresh(new_admin)
+
+    token = create_access_token({"sub": new_admin.username, "type": "admin"})
+    return AdminLoginResponse(
+        message=f"Admin ID '{new_admin.username}' created successfully! Welcome to Cashio Security.",
+        access_token=token,
+        token_type="bearer",
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -30,20 +77,28 @@ router = APIRouter(prefix="/admin", tags=["Admin"])
 @router.post("/login", response_model=AdminLoginResponse, summary="Admin login")
 def admin_login(req: AdminLoginRequest, db: Session = Depends(get_db)):
     """
-    Admin login with password. Returns a separate admin JWT.
-    Admin JWT has type='admin' in the payload.
+    Admin login with username and password (or password alone if only one admin exists).
+    Returns an admin JWT with type='admin' in payload.
     """
-    admin = db.query(Admin).filter(Admin.id == 1).first()
+    if req.username:
+        admin = db.query(Admin).filter(func.lower(Admin.username) == req.username.strip().lower()).first()
+    else:
+        # Fall back to first admin or id=1
+        admin = db.query(Admin).first()
+
     if admin is None:
-        raise HTTPException(status_code=500, detail="Admin account not configured.")
+        raise HTTPException(
+            status_code=400,
+            detail="No administrator account configured. Please create an Admin ID first.",
+        )
 
     if not verify_password(req.password, admin.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid admin password.",
+            detail="Invalid administrator credentials.",
         )
 
-    token = create_access_token({"sub": "admin", "type": "admin"})
+    token = create_access_token({"sub": admin.username or "admin", "type": "admin"})
     return AdminLoginResponse(
         message="Admin login successful. Welcome to Cashio Security Admin Panel.",
         access_token=token,

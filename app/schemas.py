@@ -35,10 +35,11 @@ class RegisterRequest(BaseModel):
 
     @field_validator("name")
     @classmethod
-    def name_must_be_lowercase_letters(cls, v: str) -> str:
-        if not re.fullmatch(r"[a-z]{3,30}", v):
-            raise ValueError("Username must be 3–30 lowercase letters only (no digits or spaces)")
-        return v
+    def name_must_be_letters_and_spaces(cls, v: str) -> str:
+        cleaned = v.strip()
+        if not re.fullmatch(r"[a-zA-Z ]{3,30}", cleaned) or len(cleaned) < 3:
+            raise ValueError("Username must be 3–30 letters (both uppercase and lowercase letters and spaces are allowed)")
+        return cleaned
 
     @field_validator("pin")
     @classmethod
@@ -69,7 +70,21 @@ class LoginResponse(BaseModel):
 
 
 class AdminLoginRequest(BaseModel):
+    username: Optional[str] = None
     password: str
+
+
+class AdminRegisterRequest(BaseModel):
+    username: str = "admin"
+    password: str
+
+    @field_validator("username")
+    @classmethod
+    def username_format(cls, v: str) -> str:
+        cleaned = v.strip()
+        if not re.fullmatch(r"[a-zA-Z0-9_]{3,30}", cleaned):
+            raise ValueError("Admin username must be 3–30 alphanumeric characters")
+        return cleaned
 
 
 class AdminLoginResponse(BaseModel):
@@ -158,9 +173,10 @@ class UsernameUpdateRequest(BaseModel):
     @field_validator("new_name")
     @classmethod
     def name_format(cls, v: str) -> str:
-        if not re.fullmatch(r"[a-z]{3,30}", v):
-            raise ValueError("Username must be 3–30 lowercase letters only")
-        return v
+        cleaned = v.strip()
+        if not re.fullmatch(r"[a-zA-Z ]{3,30}", cleaned) or len(cleaned) < 3:
+            raise ValueError("Username must be 3–30 letters (both uppercase and lowercase letters and spaces are allowed)")
+        return cleaned
 
 
 class DeleteAccountRequest(BaseModel):

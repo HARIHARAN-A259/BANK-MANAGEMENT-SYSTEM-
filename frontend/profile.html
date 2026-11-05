@@ -94,7 +94,7 @@
             <form id="username-form">
               <div class="form-group">
                 <label class="form-label" for="new-username">New Username</label>
-                <input type="text" id="new-username" class="form-control" placeholder="3–30 lowercase letters" required />
+                <input type="text" id="new-username" class="form-control" placeholder="3–30 letters (e.g. HARIHARAN A)" required />
               </div>
               <div class="form-group">
                 <label class="form-label" for="user-change-pw">Current Password</label>
@@ -216,7 +216,7 @@
     // 3. Update username
     document.getElementById("username-form").onsubmit = async (e) => {
       e.preventDefault();
-      const new_name = document.getElementById("new-username").value.trim().toLowerCase();
+      const new_name = document.getElementById("new-username").value.trim();
       const password = document.getElementById("user-change-pw").value;
 
       try {

@@ -89,7 +89,8 @@ class Transaction(Base):
 class Admin(Base):
     __tablename__ = "admin"
 
-    id = Column(Integer, primary_key=True, default=1)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    username = Column(String(50), unique=True, nullable=True, default="admin")
     password_hash = Column(Text, nullable=False)
 
 

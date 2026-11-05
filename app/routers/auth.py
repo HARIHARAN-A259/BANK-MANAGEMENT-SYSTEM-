@@ -9,6 +9,7 @@ from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 
 from app.db import get_db
 from app.models import Account, Meta
@@ -53,8 +54,8 @@ def register(req: RegisterRequest, db: Session = Depends(get_db)):
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-    # Ensure username is not already taken
-    if db.query(Account).filter(Account.name == req.name).first():
+    # Ensure username is not already taken (case-insensitive)
+    if db.query(Account).filter(func.lower(Account.name) == func.lower(req.name.strip())).first():
         raise HTTPException(
             status_code=400,
             detail=f"Username '{req.name}' is already taken. Choose a different name.",
@@ -109,7 +110,7 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
     - Returns JWT access token valid for 60 minutes
     - Returns last login timestamp
     """
-    account = db.query(Account).filter(Account.name == req.name).first()
+    account = db.query(Account).filter(func.lower(Account.name) == func.lower(req.name.strip())).first()
 
     # Generic error (do not reveal whether user exists)
     auth_error = HTTPException(

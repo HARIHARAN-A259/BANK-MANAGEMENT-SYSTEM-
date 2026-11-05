@@ -114,13 +114,11 @@ def init_db():
             if not db.query(Meta).filter(Meta.key == key).first():
                 db.add(Meta(key=key, value=default_val))
 
-        # Seed admin account if it doesn't exist
-        if not db.query(Admin).filter(Admin.id == 1).first():
-            # Default password: Admin@1234  — change via env ADMIN_PASSWORD
+        # Seed default admin account only if explicitly requested via SEED_DEFAULT_ADMIN=true
+        if os.environ.get("SEED_DEFAULT_ADMIN") == "true" and not db.query(Admin).first():
             admin_password = os.environ.get("ADMIN_PASSWORD", "Admin@1234")
-            db.add(Admin(id=1, password_hash=hash_password(admin_password)))
-            print("[Cashio Security] Admin account created. Default password: Admin@1234")
-            print("[Cashio Security] Set ADMIN_PASSWORD env variable to override.")
+            db.add(Admin(id=1, username="admin", password_hash=hash_password(admin_password)))
+            print("[Cashio Security] Default admin created: admin / Admin@1234")
 
         db.commit()
     finally:

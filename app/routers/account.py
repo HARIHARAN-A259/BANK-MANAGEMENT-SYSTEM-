@@ -17,6 +17,7 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 
 from app.db import get_db
 from app.dependencies import get_current_user
@@ -218,8 +219,8 @@ def update_username(
     if not verify_password(req.password, account.password_hash):
         raise HTTPException(status_code=401, detail="Password is incorrect.")
 
-    # Check if new name is already taken
-    if db.query(Account).filter(Account.name == req.new_name).first():
+    # Check if new name is already taken (case-insensitive)
+    if db.query(Account).filter(func.lower(Account.name) == func.lower(req.new_name.strip())).first():
         raise HTTPException(status_code=400, detail=f"Username '{req.new_name}' is already taken.")
 
     account.name = req.new_name

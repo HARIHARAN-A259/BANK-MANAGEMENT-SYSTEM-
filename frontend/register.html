@@ -28,8 +28,8 @@
         <!-- Username -->
         <div class="form-group">
           <label class="form-label" for="reg-name">Username *</label>
-          <input type="text" id="reg-name" class="form-control" placeholder="e.g. rohan" required />
-          <div class="form-hint">3–30 lowercase letters only (no digits or spaces)</div>
+          <input type="text" id="reg-name" class="form-control" placeholder="e.g. HARIHARAN A" required />
+          <div class="form-hint">3–30 letters (both uppercase and lowercase allowed)</div>
         </div>
 
         <!-- Password with Strength Meter -->
@@ -141,19 +141,19 @@
       e.preventDefault();
       alertEl.style.display = "none";
 
-      const name = document.getElementById("reg-name").value.trim().toLowerCase();
+      const name = document.getElementById("reg-name").value.trim();
       const password = pwInput.value;
       const pin = document.getElementById("reg-pin").value.trim();
       const email = document.getElementById("reg-email").value.trim() || null;
       const phone = document.getElementById("reg-phone").value.trim() || null;
       const address = document.getElementById("reg-address").value.trim() || null;
 
-      // Basic client-side pre-checks
-      if (!/^[a-z]{3,30}$/.test(name)) {
+      // Basic client-side pre-checks (supports uppercase, lowercase & spaces)
+      if (!/^[a-zA-Z ]{3,30}$/.test(name)) {
         alertEl.style.display = "block";
         alertEl.style.background = "#fee2e2";
         alertEl.style.color = "#b91c1c";
-        alertEl.textContent = "Username must be 3–30 lowercase letters only.";
+        alertEl.textContent = "Username must be 3–30 letters (both uppercase and lowercase letters are allowed).";
         return;
       }
 
