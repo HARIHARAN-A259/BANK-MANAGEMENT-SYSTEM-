@@ -33,10 +33,7 @@
         </div>
 
         <div class="form-group">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <label class="form-label" for="password">Password</label>
-            <button type="button" id="toggle-pw-btn" style="background: none; border: none; color: #64748b; font-size: 0.8rem; cursor: pointer;">Show</button>
-          </div>
+          <label class="form-label" for="password">Password</label>
           <input type="password" id="password" class="form-control" placeholder="••••••••" required />
           <div class="form-hint">8+ characters with upper, lower, digit & special</div>
         </div>
@@ -78,16 +75,8 @@
       alertEl.textContent = "You have been logged out successfully.";
     }
 
-    // Toggle password visibility
-    const pwInput = document.getElementById("password");
-    const toggleBtn = document.getElementById("toggle-pw-btn");
-    toggleBtn.onclick = () => {
-      const isPassword = pwInput.type === "password";
-      pwInput.type = isPassword ? "text" : "password";
-      toggleBtn.textContent = isPassword ? "Hide" : "Show";
-    };
-
     // Form submission
+    const pwInput = document.getElementById("password");
     const form = document.getElementById("login-form");
     const submitBtn = document.getElementById("submit-btn");
 

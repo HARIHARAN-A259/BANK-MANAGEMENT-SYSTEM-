@@ -158,6 +158,63 @@ const ui = {
   },
 
   /**
+   * Automatically initializes dynamic Show/Hide buttons for all password & PIN fields.
+   * Button remains hidden until the user begins typing in the box.
+   */
+  initPasswordToggles() {
+    document.querySelectorAll("input[type='password'], input[data-password-toggle='true']").forEach(input => {
+      if (input.dataset.pwToggleInit) return;
+      input.dataset.pwToggleInit = "true";
+
+      // Wrap input in .password-wrapper if not already wrapped
+      let wrapper = input.closest(".password-wrapper");
+      if (!wrapper) {
+        wrapper = document.createElement("div");
+        wrapper.className = "password-wrapper";
+        input.parentNode.insertBefore(wrapper, input);
+        wrapper.appendChild(input);
+      }
+
+      // Check if button already exists in wrapper
+      let btn = wrapper.querySelector(".password-toggle-btn");
+      if (!btn) {
+        btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "password-toggle-btn";
+        btn.tabIndex = -1;
+        btn.setAttribute("aria-label", "Show password");
+        btn.innerHTML = "👁️ Show";
+        wrapper.appendChild(btn);
+      }
+
+      // Dynamic appearance: only display when text is typed in the box
+      const updateVisibility = () => {
+        if (input.value && input.value.length > 0) {
+          btn.style.display = "inline-flex";
+        } else {
+          btn.style.display = "none";
+          input.type = "password";
+          btn.innerHTML = "👁️ Show";
+          btn.setAttribute("aria-label", "Show password");
+        }
+      };
+
+      input.addEventListener("input", updateVisibility);
+      updateVisibility();
+
+      btn.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const isPassword = input.type === "password";
+        input.type = isPassword ? "text" : "password";
+        btn.innerHTML = isPassword ? "🙈 Hide" : "👁️ Show";
+        btn.setAttribute("aria-label", isPassword ? "Hide password" : "Show password");
+        input.focus();
+      });
+    });
+  },
+
+  /**
    * Initialize layout behaviors (Sidebar hamburger for mobile, user pill)
    */
   initLayout() {
@@ -179,6 +236,9 @@ const ui = {
         userAvatar.textContent = (user.name || "C").charAt(0).toUpperCase();
       }
     }
+
+    // Initialize all password toggles
+    this.initPasswordToggles();
   }
 };
 
