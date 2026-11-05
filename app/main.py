@@ -5,7 +5,7 @@ Mounts all routers, configures Swagger UI, initialises the database.
 
 import os
 from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse, RedirectResponse
+from fastapi.responses import JSONResponse, RedirectResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
@@ -109,6 +109,16 @@ def health_check():
         "version": "1.0.0",
         "docs": "/docs",
     }
+
+# ---------------------------------------------------------------------------
+# Favicon handler
+# ---------------------------------------------------------------------------
+@app.get("/favicon.ico", include_in_schema=False)
+def favicon():
+    fav = os.path.join(FRONTEND_DIR, "assets", "logo.png")
+    if os.path.exists(fav):
+        return FileResponse(fav, media_type="image/png")
+    return JSONResponse(status_code=404, content={"detail": "Not found"})
 
 # ---------------------------------------------------------------------------
 # Mount Frontend Static Files
