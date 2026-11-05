@@ -132,6 +132,25 @@ class ResetPasswordRequest(BaseModel):
         return self
 
 
+class ResetPinRequest(BaseModel):
+    old_pin: str
+    new_pin: str
+    confirm_pin: str
+
+    @field_validator("old_pin", "new_pin", "confirm_pin")
+    @classmethod
+    def pin_must_be_4_digits(cls, v: str) -> str:
+        if not re.fullmatch(r"\d{4}", v):
+            raise ValueError("PIN must be exactly 4 digits")
+        return v
+
+    @model_validator(mode="after")
+    def pins_match(self):
+        if self.new_pin != self.confirm_pin:
+            raise ValueError("new_pin and confirm_pin do not match")
+        return self
+
+
 class UsernameUpdateRequest(BaseModel):
     new_name: str
     password: str

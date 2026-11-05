@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ATM Debit Card — Cashio Security</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/card.css">
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <img src="assets/logo.png" alt="Cashio Security" class="sidebar-logo">
+      </div>
+      <ul class="sidebar-menu">
+        <li class="menu-category">Main Banking</li>
+        <li><a href="dashboard.html"><span class="icon">📊</span> Dashboard</a></li>
+        <li><a href="deposit.html"><span class="icon">📥</span> Deposit Money</a></li>
+        <li><a href="withdraw.html"><span class="icon">📤</span> Withdraw Cash</a></li>
+        <li><a href="transfer.html"><span class="icon">🔄</span> Transfer Funds</a></li>
+        
+        <li class="menu-category">Ledger & Documents</li>
+        <li><a href="transactions.html"><span class="icon">📜</span> Transactions</a></li>
+        <li><a href="statement.html"><span class="icon">📄</span> Account Statement</a></li>
+        <li><a href="card.html" class="active"><span class="icon">💳</span> ATM Debit Card</a></li>
+        <li><a href="interest.html"><span class="icon">📈</span> Apply Interest</a></li>
+
+        <li class="menu-category">Account Settings</li>
+        <li><a href="profile.html"><span class="icon">👤</span> My Profile</a></li>
+      </ul>
+      <div class="sidebar-footer">
+        <button id="logout-btn" class="btn btn-outline btn-block" style="color: #cbd5e1; border-color: rgba(255,255,255,0.2);">
+          <span>🚪 Log Out</span>
+        </button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="hamburger-btn">☰</button>
+          <h2 class="page-title">ATM Debit Card</h2>
+        </div>
+        <div class="topbar-right">
+          <div class="user-badge">
+            <div id="topbar-avatar" class="user-avatar">U</div>
+            <span id="topbar-username">Customer</span>
+          </div>
+        </div>
+      </header>
+
+      <div class="content-body" style="max-width: 680px;">
+        
+        <!-- Interactive 3D Card Stage -->
+        <div class="card" style="text-align: center; padding: 32px 24px;">
+          
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+            <span id="card-status-pill" class="badge badge-info">Checking Status...</span>
+            <span style="font-size: 0.8rem; color: #64748b;">Click card to flip 3D face</span>
+          </div>
+
+          <div class="card-stage">
+            <div id="atm-card" class="atm-card-3d" title="Click to flip front / back">
+              
+              <!-- Front Face -->
+              <div class="card-face card-front">
+                <div class="card-top-row">
+                  <span class="card-bank-name">CASHIO SECURITY</span>
+                  <span class="card-debit-badge">DEBIT</span>
+                </div>
+                
+                <div class="card-chip-row">
+                  <img src="assets/chip.svg" alt="EMV Chip" class="card-chip">
+                  <span class="contactless-icon">)))</span>
+                </div>
+
+                <div id="card-num-view" class="card-number-display">•••• •••• •••• ••••</div>
+
+                <div class="card-bottom-row">
+                  <div class="card-holder-info">
+                    <span class="card-label-small">Cardholder</span>
+                    <span id="card-holder-view" class="card-holder-name">CUSTOMER NAME</span>
+                  </div>
+
+                  <div class="card-expiry-info">
+                    <span class="card-label-small">Valid Thru</span>
+                    <span id="card-expiry-view" class="card-expiry-date">--/--</span>
+                  </div>
+
+                  <div class="card-network-logo">
+                    <div class="network-circle network-red"></div>
+                    <div class="network-circle network-yellow"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Back Face -->
+              <div class="card-face card-back">
+                <div class="card-mag-stripe"></div>
+                
+                <div class="card-back-middle">
+                  <div class="card-sig-panel">
+                    <span class="card-cvv-text" id="card-back-cvv">CVV: ***</span>
+                  </div>
+                </div>
+
+                <div class="card-back-footer">
+                  <p style="margin-bottom: 3px; color: var(--gold-light);">Customer Support: 1800-CASHIO-00 | support@cashiosecurity.in</p>
+                  <p>This card is the property of Cashio Security Bank. Unauthorized use is prohibited.</p>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="card-flip-prompt">💡 Click anywhere on the card to inspect the magnetic stripe & signature panel</div>
+
+          <!-- Card Management Action Buttons -->
+          <div id="card-actions-area" style="margin-top: 28px; display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;">
+            <!-- Rendered dynamically depending on NONE, ACTIVE, BLOCKED -->
+          </div>
+
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- One-Time CVV Modal Alert -->
+  <div id="cvv-modal" class="modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>🔐 Important: Card Security Details</h3>
+      </div>
+      <div class="modal-body" style="text-align: center; padding: 24px;">
+        <p style="color: #64748b; font-size: 0.95rem; margin-bottom: 12px;">Your Cashio Security debit card has been generated.</p>
+        <div style="font-size: 0.85rem; color: #b45309; background: #fef3c7; padding: 10px; border-radius: 6px; margin-bottom: 16px;">
+          ⚠️ <strong>Security Notice:</strong> The 3-digit CVV below is displayed <u>ONLY ONCE</u> and is never stored in plain text. Memorize or save it now!
+        </div>
+        <div style="font-size: 0.8rem; text-transform: uppercase; color: #64748b;">Your 3-Digit CVV</div>
+        <div id="issued-cvv-display" style="font-size: 2.2rem; font-weight: 900; font-family: monospace; color: #0A1931; letter-spacing: 0.3em; margin: 6px 0 16px;">
+          ---
+        </div>
+      </div>
+      <div class="modal-footer" style="justify-content: center;">
+        <button type="button" id="cvv-modal-close-btn" class="btn btn-primary" style="padding: 10px 32px;">I Have Saved My CVV</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/ui.js"></script>
+  <script>
+    auth.requireAuth();
+    document.getElementById("logout-btn").onclick = () => auth.logout();
+
+    const atmCard = document.getElementById("atm-card");
+    atmCard.onclick = () => atmCard.classList.toggle("flipped");
+
+    let currentAccount = null;
+
+    async function loadCardState() {
+      try {
+        currentAccount = await api.get("/account/details");
+        renderCardUI(currentAccount);
+      } catch (err) {
+        ui.toast(err.message || "Failed to load card state", "error");
+      }
+    }
+
+    function renderCardUI(acc) {
+      const statusPill = document.getElementById("card-status-pill");
+      const numView = document.getElementById("card-num-view");
+      const holderView = document.getElementById("card-holder-view");
+      const expiryView = document.getElementById("card-expiry-view");
+      const actionsArea = document.getElementById("card-actions-area");
+
+      holderView.textContent = (acc.name || "CARDHOLDER").toUpperCase();
+
+      if (acc.card_status === "ACTIVE") {
+        statusPill.className = "badge badge-success";
+        statusPill.textContent = "ACTIVE DEBIT CARD";
+        numView.textContent = acc.card_masked || "•••• •••• •••• ••••";
+        expiryView.textContent = acc.card_expiry || "11/31";
+
+        actionsArea.innerHTML = `
+          <button id="download-card-btn" class="btn btn-gold">📥 Download Card PDF (85.6×54mm)</button>
+          <button id="block-card-btn" class="btn btn-danger">🔒 Freeze / Block Card</button>
+        `;
+
+        document.getElementById("download-card-btn").onclick = handleDownloadCard;
+        document.getElementById("block-card-btn").onclick = handleBlockCard;
+
+      } else if (acc.card_status === "BLOCKED") {
+        statusPill.className = "badge badge-danger";
+        statusPill.textContent = "CARD BLOCKED / FROZEN";
+        numView.textContent = acc.card_masked || "•••• •••• •••• ••••";
+        expiryView.textContent = acc.card_expiry || "11/31";
+
+        actionsArea.innerHTML = `
+          <button id="unblock-card-btn" class="btn btn-primary">🔓 Unblock & Reactivate Card</button>
+          <div style="width: 100%; font-size: 0.8rem; color: #ef4444; margin-top: 6px;">
+            ⚠️ This card is blocked. PDF downloads are prohibited until unblocked.
+          </div>
+        `;
+
+        document.getElementById("unblock-card-btn").onclick = handleUnblockCard;
+
+      } else {
+        // NONE
+        statusPill.className = "badge badge-info";
+        statusPill.textContent = "NO CARD ISSUED";
+        numView.textContent = "•••• •••• •••• ••••";
+        expiryView.textContent = "--/--";
+
+        actionsArea.innerHTML = `
+          <button id="issue-card-btn" class="btn btn-gold" style="padding: 12px 28px;">
+            💳 Issue Instant Cashio Debit Card
+          </button>
+        `;
+
+        document.getElementById("issue-card-btn").onclick = handleIssueCard;
+      }
+    }
+
+    function handleIssueCard() {
+      ui.promptPin({
+        title: "Issue New Cashio Debit Card",
+        description: "Enter your 4-digit security PIN to authorize card generation."
+      }, async (pin) => {
+        try {
+          ui.toast("Generating Luhn-compliant 16-digit card...", "info");
+          const data = await api.post("/card/issue", { pin });
+          
+          // Show one-time CVV modal
+          document.getElementById("issued-cvv-display").textContent = data.cvv;
+          document.getElementById("cvv-modal").classList.add("active");
+
+          ui.toast("Debit card issued successfully!", "success");
+          await loadCardState();
+        } catch (err) {
+          ui.toast(err.message || "Failed to issue card", "error");
+        }
+      });
+    }
+
+    document.getElementById("cvv-modal-close-btn").onclick = () => {
+      document.getElementById("cvv-modal").classList.remove("active");
+    };
+
+    function handleBlockCard() {
+      ui.promptPin({
+        title: "Block ATM Debit Card",
+        description: "Are you sure? Enter your 4-digit PIN to immediately freeze this card."
+      }, async (pin) => {
+        try {
+          const data = await api.post("/card/block", { pin });
+          ui.toast(data.message, "warning");
+          await loadCardState();
+        } catch (err) {
+          ui.toast(err.message || "Failed to block card", "error");
+        }
+      });
+    }
+
+    function handleUnblockCard() {
+      ui.promptPin({
+        title: "Unblock ATM Debit Card",
+        description: "Enter your 4-digit PIN to unblock and reactivate your debit card."
+      }, async (pin) => {
+        try {
+          const data = await api.post("/card/unblock", { pin });
+          ui.toast(data.message, "success");
+          await loadCardState();
+        } catch (err) {
+          ui.toast(err.message || "Failed to unblock card", "error");
+        }
+      });
+    }
+
+    function handleDownloadCard() {
+      ui.promptPin({
+        title: "Verify PIN for Card Download",
+        description: "Owner identity check: enter your 4-digit PIN to download the full-detail printable ATM card PDF."
+      }, async (pin) => {
+        try {
+          ui.toast("Compiling ISO/IEC 7810 printable card PDF...", "info");
+          const blob = await api.post("/card/download", { pin });
+          api.downloadBlob(blob, `Cashio_Card_${currentAccount.account_number}.pdf`);
+          ui.toast("Card PDF downloaded successfully!", "success");
+        } catch (err) {
+          ui.toast(err.message || "Failed to download card PDF", "error");
+        }
+      });
+    }
+
+    loadCardState();
+  </script>
+</body>
+</html>
+

@@ -23,7 +23,7 @@ from app.dependencies import get_current_user
 from app.models import Account, Transaction, Meta
 from app.schemas import (
     AccountDetails, ProfileResponse, ProfileUpdateRequest,
-    ResetPasswordRequest, UsernameUpdateRequest, DeleteAccountRequest,
+    ResetPasswordRequest, ResetPinRequest, UsernameUpdateRequest, DeleteAccountRequest,
     BalanceResponse, InterestRequest, MessageResponse,
     paise_to_rupees, rupees_to_paise,
 )
@@ -182,6 +182,27 @@ def reset_password(
     account.failed_login_count = 0   # reset lockout counter on password change
     db.commit()
     return MessageResponse(message="Password changed successfully.")
+
+
+# ---------------------------------------------------------------------------
+# POST /account/reset-pin
+# ---------------------------------------------------------------------------
+@router.post("/reset-pin", response_model=MessageResponse, summary="Change transaction PIN")
+def reset_pin(
+    req: ResetPinRequest,
+    account: Account = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Update 4-digit transaction PIN. Verifies old PIN with lockout defense."""
+    _check_pin(account, req.old_pin, db)
+
+    if req.old_pin == req.new_pin:
+        raise HTTPException(status_code=400, detail="New PIN must be different from current PIN.")
+
+    account.pin_hash = hash_pin(req.new_pin)
+    account.pin_attempts = 0
+    db.commit()
+    return MessageResponse(message="Transaction PIN changed successfully.")
 
 
 # ---------------------------------------------------------------------------

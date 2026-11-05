@@ -1,0 +1,227 @@
+/* ==========================================================================
+   Cashio Security — Interactive 3D ATM Debit Card CSS
+   ========================================================================== */
+
+.card-stage {
+  perspective: 1200px;
+  width: 100%;
+  max-width: 440px;
+  margin: 20px auto 30px;
+}
+
+.atm-card-3d {
+  width: 100%;
+  aspect-ratio: 85.6 / 53.98; /* ISO/IEC 7810 ID-1 standard ratio */
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  border-radius: 16px;
+  box-shadow: 0 15px 35px rgba(10, 25, 49, 0.35);
+}
+
+.atm-card-3d.flipped {
+  transform: rotateY(180deg);
+}
+
+.card-face {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(212, 175, 55, 0.4);
+}
+
+/* Front Face */
+.card-front {
+  background: linear-gradient(135deg, #0A1931 0%, #162a4a 60%, #061122 100%);
+  color: #ffffff;
+  padding: 22px 26px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-sizing: border-box;
+}
+
+.card-front::before {
+  content: "";
+  position: absolute;
+  top: -60px;
+  right: -60px;
+  width: 220px;
+  height: 220px;
+  background: radial-gradient(circle, rgba(212, 175, 55, 0.22) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.card-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-bank-name {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--gold-primary);
+  letter-spacing: 0.08em;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+.card-debit-badge {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 3px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+}
+
+.card-chip-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 4px 0;
+}
+
+.card-chip {
+  width: 48px;
+  height: 36px;
+}
+
+.contactless-icon {
+  font-size: 1.3rem;
+  color: rgba(255, 255, 255, 0.7);
+  transform: rotate(90deg);
+}
+
+.card-number-display {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 1.4rem;
+  letter-spacing: 0.15em;
+  font-weight: 700;
+  color: #ffffff;
+  text-shadow: 0 2px 3px rgba(0, 0, 0, 0.9);
+  user-select: none;
+}
+
+.card-bottom-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+.card-holder-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.card-label-small {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  color: var(--gold-light);
+  letter-spacing: 0.08em;
+  margin-bottom: 2px;
+}
+
+.card-holder-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #ffffff;
+  max-width: 220px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-expiry-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.card-expiry-date {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.card-network-logo {
+  display: flex;
+  align-items: center;
+}
+
+.network-circle {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  opacity: 0.9;
+}
+
+.network-red { background: #eb001b; }
+.network-yellow { background: #f79e1b; margin-left: -10px; }
+
+/* Back Face */
+.card-back {
+  background: linear-gradient(135deg, #061122 0%, #0A1931 100%);
+  color: #ffffff;
+  transform: rotateY(180deg);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 0 0 16px 0;
+  box-sizing: border-box;
+}
+
+.card-mag-stripe {
+  width: 100%;
+  height: 44px;
+  background: #111111;
+  margin-top: 24px;
+}
+
+.card-back-middle {
+  padding: 0 24px;
+}
+
+.card-sig-panel {
+  background: #ffffff;
+  height: 34px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 12px;
+  position: relative;
+  background-image: repeating-linear-gradient(45deg, #f1f5f9, #f1f5f9 5px, #ffffff 5px, #ffffff 10px);
+}
+
+.card-cvv-text {
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: #1e293b;
+  letter-spacing: 0.1em;
+}
+
+.card-back-footer {
+  padding: 0 24px;
+  font-size: 0.62rem;
+  color: #94a3b8;
+  line-height: 1.3;
+}
+
+.card-flip-prompt {
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 8px;
+}
+

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cashio Security — Advanced Bank Management System</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body style="background: linear-gradient(135deg, #0A1931 0%, #061122 100%); color: #ffffff;">
+
+  <!-- Navigation Bar -->
+  <nav style="display: flex; align-items: center; justify-content: space-between; padding: 20px 48px; border-bottom: 1px solid rgba(212, 175, 55, 0.2);">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <img src="assets/logo.png" alt="Cashio Security Logo" style="height: 48px;">
+    </div>
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <a href="login.html" class="btn btn-outline" style="color: #ffffff; border-color: rgba(255,255,255,0.3);">Customer Login</a>
+      <a href="register.html" class="btn btn-gold">Open an Account</a>
+      <a href="admin-login.html" class="btn btn-outline" style="color: var(--gold-primary); border-color: var(--gold-primary); font-size: 0.8rem;">Admin Portal</a>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <header style="max-width: 1100px; margin: 60px auto 40px; text-align: center; padding: 0 24px;">
+    <span class="badge" style="background: rgba(212, 175, 55, 0.2); color: var(--gold-light); padding: 6px 16px; border-radius: 20px; font-size: 0.85rem; margin-bottom: 20px;">
+      COLLEGE MICRO-PROJECT • ADVANCED BANK MANAGEMENT SYSTEM
+    </span>
+    <h1 style="color: #ffffff; font-size: 3.2rem; margin: 20px 0; line-height: 1.15;">
+      Security-First Banking with <span style="color: var(--gold-primary);">Zero Floating-Point Error</span>
+    </h1>
+    <p style="font-size: 1.2rem; color: #94a3b8; max-width: 760px; margin: 0 auto 36px; line-height: 1.6;">
+      Welcome to <strong>Cashio Security</strong>. Engineered with integer-paise financial precision, salted bcrypt password/PIN encryption, brute-force lockout defenses, atomic transaction rollbacks, and ISO-standard ATM cards.
+    </p>
+    <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
+      <a href="register.html" class="btn btn-gold" style="padding: 14px 32px; font-size: 1.05rem;">Get Started — Create Account</a>
+      <a href="login.html" class="btn btn-outline" style="color: #ffffff; border-color: #ffffff; padding: 14px 28px;">Sign In to Dashboard</a>
+      <a href="/docs" target="_blank" class="btn btn-outline" style="color: var(--gold-primary); border-color: var(--gold-primary); padding: 14px 24px;">Swagger API Docs</a>
+    </div>
+  </header>
+
+  <!-- Architectural Highlights Grid -->
+  <section style="max-width: 1100px; margin: 40px auto 80px; padding: 0 24px;">
+    <div class="grid-3" style="gap: 24px;">
+      
+      <div style="background: rgba(16, 36, 68, 0.7); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 12px; padding: 28px;">
+        <div style="font-size: 2rem; margin-bottom: 12px;">🪙</div>
+        <h3 style="color: var(--gold-primary); margin-bottom: 8px;">Integer Paise Precision</h3>
+        <p style="color: #cbd5e1; font-size: 0.92rem;">
+          Eliminates IEEE 754 float rounding errors by tracking every rupee down to integer paise (1 Rupee = 100 paise).
+        </p>
+      </div>
+
+      <div style="background: rgba(16, 36, 68, 0.7); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 12px; padding: 28px;">
+        <div style="font-size: 2rem; margin-bottom: 12px;">🛡️</div>
+        <h3 style="color: var(--gold-primary); margin-bottom: 8px;">3-Strike Brute Force Lockout</h3>
+        <p style="color: #cbd5e1; font-size: 0.92rem;">
+          Passwords and 4-digit PINs are secured with salted bcrypt. 3 failed attempts lock the account and persist across server reboots.
+        </p>
+      </div>
+
+      <div style="background: rgba(16, 36, 68, 0.7); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 12px; padding: 28px;">
+        <div style="font-size: 2rem; margin-bottom: 12px;">⚡</div>
+        <h3 style="color: var(--gold-primary); margin-bottom: 8px;">Atomic Transfers & Rollbacks</h3>
+        <p style="color: #cbd5e1; font-size: 0.92rem;">
+          Database-level ACID atomic transactions ensure sender debit and receiver credit share one transaction ID or rollback completely.
+        </p>
+      </div>
+
+      <div style="background: rgba(16, 36, 68, 0.7); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 12px; padding: 28px;">
+        <div style="font-size: 2rem; margin-bottom: 12px;">💳</div>
+        <h3 style="color: var(--gold-primary); margin-bottom: 8px;">Luhn-Valid ATM Cards</h3>
+        <p style="color: #cbd5e1; font-size: 0.92rem;">
+          Issues 16-digit cards with Cashio BIN 453200, masked displays, 3D flip card visualization, and printable ISO/IEC 7810 PDFs.
+        </p>
+      </div>
+
+      <div style="background: rgba(16, 36, 68, 0.7); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 12px; padding: 28px;">
+        <div style="font-size: 2rem; margin-bottom: 12px;">📄</div>
+        <h3 style="color: var(--gold-primary); margin-bottom: 8px;">ReportLab Document Engine</h3>
+        <p style="color: #cbd5e1; font-size: 0.92rem;">
+          Generates official transaction receipt PDFs and account statement PDFs with dynamic date range filtering.
+        </p>
+      </div>
+
+      <div style="background: rgba(16, 36, 68, 0.7); border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 12px; padding: 28px;">
+        <div style="font-size: 2rem; margin-bottom: 12px;">🔒</div>
+        <h3 style="color: var(--gold-primary); margin-bottom: 8px;">Admin Supervisory Portal</h3>
+        <p style="color: #cbd5e1; font-size: 0.92rem;">
+          Separate administrative authorization, bank-wide deposit volume tallies, and customer lockout recovery tools.
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer style="text-align: center; padding: 24px; border-top: 1px solid rgba(255,255,255,0.1); color: #64748b; font-size: 0.85rem;">
+    &copy; 2026 Cashio Security Bank Management System. Built for College Micro-Project Demonstration.
+  </footer>
+
+</body>
+</html>
+

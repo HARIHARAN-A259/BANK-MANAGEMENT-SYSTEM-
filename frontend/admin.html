@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Control Center — Cashio Security</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body style="background: #f8fafc;">
+
+  <!-- Admin Navigation Bar -->
+  <header style="background: #0A1931; border-bottom: 2px solid #D4AF37; padding: 16px 32px; display: flex; align-items: center; justify-content: space-between;">
+    <div style="display: flex; align-items: center; gap: 14px;">
+      <a href="index.html">
+        <img src="assets/logo.png" alt="Cashio Security" style="height: 38px;">
+      </a>
+      <span class="badge" style="background: rgba(212, 175, 55, 0.2); color: var(--gold-light);">ADMINISTRATOR CONSOLE</span>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <a href="dashboard.html" class="btn btn-outline btn-sm" style="color: #ffffff; border-color: rgba(255,255,255,0.3);">Customer View</a>
+      <button id="admin-logout-btn" class="btn btn-gold btn-sm">Exit Admin</button>
+    </div>
+  </header>
+
+  <!-- Main Body -->
+  <main style="max-width: 1200px; margin: 36px auto; padding: 0 24px;">
+    
+    <!-- Bank-wide Metric Highlights -->
+    <div class="grid-3" style="margin-bottom: 28px;">
+      
+      <div class="card" style="margin-bottom: 0;">
+        <div class="stat-header">
+          <span>Total Bank Deposits</span>
+          <span>🏦</span>
+        </div>
+        <div id="stat-total-deposits" class="stat-value" style="color: #10b981;">₹0.00</div>
+        <div id="stat-deposits-count" class="form-hint">0 total deposit operations</div>
+      </div>
+
+      <div class="card" style="margin-bottom: 0;">
+        <div class="stat-header">
+          <span>Registered Accounts</span>
+          <span>👥</span>
+        </div>
+        <div id="stat-accounts-count" class="stat-value">0</div>
+        <div class="form-hint">Accounts managed in system</div>
+      </div>
+
+      <div class="card" style="margin-bottom: 0;">
+        <div class="stat-header">
+          <span>System Security Health</span>
+          <span>🛡️</span>
+        </div>
+        <div id="stat-locked-count" class="stat-value" style="color: #f59e0b;">0</div>
+        <div class="form-hint">Accounts currently locked</div>
+      </div>
+
+    </div>
+
+    <!-- Accounts Master Table -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Customer Bank Accounts Master Ledger</h3>
+        <button id="refresh-accounts-btn" class="btn btn-outline btn-sm">🔄 Refresh List</button>
+      </div>
+
+      <div class="table-responsive">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Account #</th>
+              <th>Username</th>
+              <th>Contact Info</th>
+              <th>Balance</th>
+              <th>Login Lock</th>
+              <th>PIN Lock</th>
+              <th>Account State</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="admin-accounts-tbody">
+            <tr><td colspan="8" style="text-align: center; padding: 30px;">Loading accounts...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/ui.js"></script>
+  <script>
+    auth.requireAdmin();
+    document.getElementById("admin-logout-btn").onclick = () => auth.logoutAdmin();
+
+    // Helper to send requests with the Admin JWT instead of Customer JWT
+    async function adminFetch(endpoint, method = "GET", body = null) {
+      const baseUrl = (window.location.protocol === "file:") ? "http://127.0.0.1:8000" : "";
+      const url = `${baseUrl}${endpoint}`;
+      const headers = {
+        "Authorization": `Bearer ${auth.getAdminToken()}`
+      };
+      if (body) headers["Content-Type"] = "application/json";
+
+      const res = await fetch(url, {
+        method,
+        headers,
+        body: body ? JSON.stringify(body) : undefined
+      });
+
+      if (res.status === 401) {
+        auth.logoutAdmin();
+        return null;
+      }
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.detail || "Admin request failed");
+      }
+      return data;
+    }
+
+    async function loadAdminData() {
+      try {
+        // 1. Fetch total deposits
+        const dep = await adminFetch("/admin/total-deposits");
+        if (dep) {
+          document.getElementById("stat-total-deposits").textContent = dep.total_deposits_rupees;
+          document.getElementById("stat-deposits-count").textContent = `${dep.count} total deposit operations`;
+        }
+
+        // 2. Fetch all accounts
+        const accounts = await adminFetch("/admin/accounts") || [];
+        document.getElementById("stat-accounts-count").textContent = accounts.length;
+
+        const lockedAccounts = accounts.filter(a => a.locked || a.pin_locked);
+        document.getElementById("stat-locked-count").textContent = `${lockedAccounts.length} locked`;
+
+        renderAccountsTable(accounts);
+
+      } catch (err) {
+        ui.toast(err.message || "Failed to load admin telemetry", "error");
+      }
+    }
+
+    function renderAccountsTable(accounts) {
+      const tbody = document.getElementById("admin-accounts-tbody");
+      if (!accounts || accounts.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 30px;">No accounts found.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = accounts.map(a => {
+        const isLocked = a.locked;
+        const isPinLocked = a.pin_locked;
+        const needsUnlock = isLocked || isPinLocked;
+
+        return `
+          <tr>
+            <td><strong style="font-family: monospace; font-size: 1rem;">${auth.escapeHTML(a.account_number)}</strong></td>
+            <td><strong>${auth.escapeHTML(a.name)}</strong></td>
+            <td style="font-size: 0.8rem; color: #64748b;">
+              ${auth.escapeHTML(a.email || '-')} <br/> ${auth.escapeHTML(a.phone || '-')}
+            </td>
+            <td style="font-weight: 700; color: #0A1931;">${auth.escapeHTML(a.balance_rupees)}</td>
+            <td>
+              <span class="badge ${isLocked ? 'badge-danger' : 'badge-success'}">
+                ${isLocked ? 'LOCKED (3 FAILS)' : 'NORMAL'}
+              </span>
+            </td>
+            <td>
+              <span class="badge ${isPinLocked ? 'badge-danger' : 'badge-success'}">
+                ${isPinLocked ? 'PIN LOCKED' : 'OK'}
+              </span>
+            </td>
+            <td>
+              <span class="badge ${a.active ? 'badge-success' : 'badge-warning'}">
+                ${a.active ? 'ACTIVE' : 'DEACTIVATED'}
+              </span>
+            </td>
+            <td>
+              ${needsUnlock ? `
+                <button class="btn btn-gold btn-sm" onclick="unlockAccount('${auth.escapeHTML(a.account_number)}')">
+                  🔓 Unlock Account
+                </button>
+              ` : `
+                <span style="color: #94a3b8; font-size: 0.8rem;">No Action Needed</span>
+              `}
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    async function unlockAccount(accNum) {
+      ui.confirm({
+        title: "Confirm Account Unlock",
+        message: `Reset failed attempt counters and restore active access for Account #${accNum}?`,
+        confirmText: "Yes, Unlock Account"
+      }, async () => {
+        try {
+          ui.toast(`Unlocking Account #${accNum}...`, "info");
+          const data = await adminFetch(`/admin/unlock/${accNum}`, "POST");
+          ui.toast(data.message, "success");
+          await loadAdminData();
+        } catch (err) {
+          ui.toast(err.message || "Failed to unlock account", "error");
+        }
+      });
+    }
+
+    document.getElementById("refresh-accounts-btn").onclick = loadAdminData;
+
+    loadAdminData();
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 75" width="50" height="38">
+  <rect x="2" y="2" width="96" height="71" rx="8" fill="#D4AF37" stroke="#B8860B" stroke-width="2"/>
+  <rect x="8" y="8" width="84" height="59" rx="4" fill="#F5D76E" opacity="0.6"/>
+  <!-- Chip contact paths -->
+  <path d="M2,28 L35,28 L45,38 L45,73" stroke="#8B6508" stroke-width="2" fill="none"/>
+  <path d="M2,47 L35,47 L45,38" stroke="#8B6508" stroke-width="2" fill="none"/>
+  <path d="M98,28 L65,28 L55,38 L55,73" stroke="#8B6508" stroke-width="2" fill="none"/>
+  <path d="M98,47 L65,47 L55,38" stroke="#8B6508" stroke-width="2" fill="none"/>
+  <path d="M50,2 L50,25" stroke="#8B6508" stroke-width="2" fill="none"/>
+  <circle cx="50" cy="38" r="6" fill="#8B6508"/>
+</svg>

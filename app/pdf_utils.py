@@ -23,15 +23,27 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 
 # ---------------------------------------------------------------------------
-# Base output directories (relative to project root)
+# Base output directories (supports Vercel /tmp read-only filesystem)
 # ---------------------------------------------------------------------------
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-CARDS_DIR = os.path.join(BASE_DIR, "output", "cards")
-RECEIPTS_DIR = os.path.join(BASE_DIR, "output", "receipts")
-STATEMENTS_DIR = os.path.join(BASE_DIR, "output", "statements")
+BASE_OUT = "/tmp/output" if os.environ.get("VERCEL") else os.path.join(BASE_DIR, "output")
+
+CARDS_DIR = os.path.join(BASE_OUT, "cards")
+RECEIPTS_DIR = os.path.join(BASE_OUT, "receipts")
+STATEMENTS_DIR = os.path.join(BASE_OUT, "statements")
 
 for d in (CARDS_DIR, RECEIPTS_DIR, STATEMENTS_DIR):
-    os.makedirs(d, exist_ok=True)
+    try:
+        os.makedirs(d, exist_ok=True)
+    except OSError:
+        pass
+
+
+def _ensure_dir(path: str):
+    try:
+        os.makedirs(path, exist_ok=True)
+    except OSError:
+        pass
 
 # ---------------------------------------------------------------------------
 # Brand colours
@@ -63,6 +75,7 @@ def generate_card_pdf(
     Returns the absolute file path of the saved PDF.
     """
     filename = f"card_{account_number}_{datetime.utcnow().strftime('%Y%m%d%H%M%S')}.pdf"
+    _ensure_dir(CARDS_DIR)
     filepath = os.path.join(CARDS_DIR, filename)
 
     c = canvas.Canvas(filepath, pagesize=A4)
@@ -223,6 +236,7 @@ def generate_receipt_pdf(
 ) -> str:
     """Generate a receipt PDF and return its file path."""
     filename = f"receipt_{txn_id}_{account_number}.pdf"
+    _ensure_dir(RECEIPTS_DIR)
     filepath = os.path.join(RECEIPTS_DIR, filename)
 
     c = canvas.Canvas(filepath, pagesize=(105 * mm, 148 * mm))  # A6 size
@@ -314,6 +328,7 @@ def generate_statement_pdf(
     """Generate an account statement PDF and return its file path."""
     ts = datetime.utcnow().strftime("%Y%m%d%H%M%S")
     filename = f"statement_{account_number}_{ts}.pdf"
+    _ensure_dir(STATEMENTS_DIR)
     filepath = os.path.join(STATEMENTS_DIR, filename)
 
     c = canvas.Canvas(filepath, pagesize=A4)

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Withdraw Cash — Cashio Security</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <img src="assets/logo.png" alt="Cashio Security" class="sidebar-logo">
+      </div>
+      <ul class="sidebar-menu">
+        <li class="menu-category">Main Banking</li>
+        <li><a href="dashboard.html"><span class="icon">📊</span> Dashboard</a></li>
+        <li><a href="deposit.html"><span class="icon">📥</span> Deposit Money</a></li>
+        <li><a href="withdraw.html" class="active"><span class="icon">📤</span> Withdraw Cash</a></li>
+        <li><a href="transfer.html"><span class="icon">🔄</span> Transfer Funds</a></li>
+        
+        <li class="menu-category">Ledger & Documents</li>
+        <li><a href="transactions.html"><span class="icon">📜</span> Transactions</a></li>
+        <li><a href="statement.html"><span class="icon">📄</span> Account Statement</a></li>
+        <li><a href="card.html"><span class="icon">💳</span> ATM Debit Card</a></li>
+        <li><a href="interest.html"><span class="icon">📈</span> Apply Interest</a></li>
+
+        <li class="menu-category">Account Settings</li>
+        <li><a href="profile.html"><span class="icon">👤</span> My Profile</a></li>
+      </ul>
+      <div class="sidebar-footer">
+        <button id="logout-btn" class="btn btn-outline btn-block" style="color: #cbd5e1; border-color: rgba(255,255,255,0.2);">
+          <span>🚪 Log Out</span>
+        </button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="hamburger-btn">☰</button>
+          <h2 class="page-title">Withdraw Cash</h2>
+        </div>
+        <div class="topbar-right">
+          <div class="user-badge">
+            <div id="topbar-avatar" class="user-avatar">U</div>
+            <span id="topbar-username">Customer</span>
+          </div>
+        </div>
+      </header>
+
+      <div class="content-body" style="max-width: 640px;">
+        
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Debit Cash from Account</h3>
+            <span class="badge badge-warning">4-Digit PIN Required</span>
+          </div>
+
+          <!-- Limit Indicators -->
+          <div class="grid-2" style="gap: 12px; margin-bottom: 20px;">
+            <div style="background: #f8fafc; border-radius: 8px; padding: 12px; border-left: 3px solid #3b82f6;">
+              <div style="font-size: 0.75rem; color: #64748b;">Current Balance:</div>
+              <div id="withdraw-current-bal" style="font-size: 1.25rem; font-weight: 800; color: #0A1931;">Loading...</div>
+            </div>
+
+            <div style="background: #f8fafc; border-radius: 8px; padding: 12px; border-left: 3px solid #f59e0b;">
+              <div style="font-size: 0.75rem; color: #64748b;">Daily Withdrawal Cap:</div>
+              <div style="font-size: 1.25rem; font-weight: 800; color: #0A1931;">₹20,000.00</div>
+            </div>
+          </div>
+
+          <form id="withdraw-form">
+            
+            <div class="form-group">
+              <label class="form-label" for="withdraw-amount">Withdrawal Amount (₹ Rupees) *</label>
+              <input type="number" id="withdraw-amount" class="form-control" placeholder="0.00" step="0.01" min="1" max="50000" required 
+                     style="font-size: 1.4rem; font-weight: 700; color: #0A1931;" />
+              <div class="form-hint">Per-transaction limit: ₹50,000.00 | Rolling daily cap: ₹20,000.00</div>
+            </div>
+
+            <!-- Quick Amount Chips -->
+            <div style="display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap;">
+              <button type="button" class="btn btn-outline btn-sm quick-chip" data-amt="500">₹500</button>
+              <button type="button" class="btn btn-outline btn-sm quick-chip" data-amt="2000">₹2,000</button>
+              <button type="button" class="btn btn-outline btn-sm quick-chip" data-amt="5000">₹5,000</button>
+              <button type="button" class="btn btn-outline btn-sm quick-chip" data-amt="10000">₹10,000</button>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="withdraw-remark">Remark / Memo (Optional)</label>
+              <input type="text" id="withdraw-remark" class="form-control" placeholder="e.g. ATM cash, Shopping" />
+            </div>
+
+            <button type="submit" id="withdraw-submit-btn" class="btn btn-primary btn-block" style="padding: 13px; font-weight: 700;">
+              Authorize & Withdraw
+            </button>
+
+          </form>
+
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/ui.js"></script>
+  <script>
+    auth.requireAuth();
+    document.getElementById("logout-btn").onclick = () => auth.logout();
+
+    const amtInput = document.getElementById("withdraw-amount");
+    const submitBtn = document.getElementById("withdraw-submit-btn");
+
+    async function loadBalance() {
+      try {
+        const bal = await api.get("/account/balance");
+        document.getElementById("withdraw-current-bal").textContent = bal.balance_rupees;
+      } catch (e) {
+        document.getElementById("withdraw-current-bal").textContent = "₹--.--";
+      }
+    }
+
+    document.querySelectorAll(".quick-chip").forEach(btn => {
+      btn.onclick = () => {
+        amtInput.value = btn.dataset.amt;
+      };
+    });
+
+    document.getElementById("withdraw-form").onsubmit = (e) => {
+      e.preventDefault();
+      const amount = parseFloat(amtInput.value);
+      const remark = document.getElementById("withdraw-remark").value.trim() || undefined;
+
+      if (!amount || amount <= 0) {
+        ui.toast("Please enter a valid withdrawal amount.", "warning");
+        return;
+      }
+
+      // Prompt for 4-digit PIN in modal
+      ui.promptPin({
+        title: "Confirm Withdrawal Authorization",
+        description: `Please enter your 4-digit PIN to withdraw ₹${amount.toLocaleString('en-IN', {minimumFractionDigits: 2})}.`
+      }, async (pin) => {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner"></span> Processing Withdrawal...';
+
+        try {
+          const data = await api.post("/transactions/withdraw", { amount, pin, remark });
+          ui.toast(data.message, "success");
+          amtInput.value = "";
+          document.getElementById("withdraw-remark").value = "";
+          await loadBalance();
+        } catch (err) {
+          ui.toast(err.message || "Withdrawal failed", "error");
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = 'Authorize & Withdraw';
+        }
+      });
+    };
+
+    loadBalance();
+  </script>
+</body>
+</html>
+

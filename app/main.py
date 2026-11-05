@@ -3,12 +3,22 @@ main.py — FastAPI application entry point for Cashio Security
 Mounts all routers, configures Swagger UI, initialises the database.
 """
 
+import os
 from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from app.db import init_db
 from app.routers import auth, account, transactions, card, admin
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
+if not os.path.exists(FRONTEND_DIR):
+    try:
+        os.makedirs(FRONTEND_DIR, exist_ok=True)
+    except OSError:
+        pass
 
 # ---------------------------------------------------------------------------
 # Application instance
@@ -88,15 +98,24 @@ def on_startup():
 
 
 # ---------------------------------------------------------------------------
-# Root endpoint
+# Health check endpoint
 # ---------------------------------------------------------------------------
-@app.get("/", tags=["Health"], summary="Health check")
-def root():
-    """Returns a welcome message confirming the API is running."""
+@app.get("/api/health", tags=["Health"], summary="API Health Check")
+def health_check():
+    """Returns API health status."""
     return {
         "bank": "Cashio Security",
-        "message": "Welcome to Cashio Security API. Visit /docs for interactive documentation.",
-        "status": "running",
+        "status": "online",
         "version": "1.0.0",
+        "docs": "/docs",
     }
+
+# ---------------------------------------------------------------------------
+# Mount Frontend Static Files
+# Mounted after API routers so /auth, /account, /transactions etc. take precedence.
+# Both /app-ui and root / will serve the frontend.
+# ---------------------------------------------------------------------------
+if os.path.exists(FRONTEND_DIR):
+    app.mount("/app-ui", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend_ui")
+    app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")
 

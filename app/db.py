@@ -9,30 +9,53 @@ from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker, DeclarativeBase
 
 # ---------------------------------------------------------------------------
-# Database file path (relative to project root)
+# Database URL and file path configuration
+# Supports local SQLite, Vercel /tmp SQLite, and DATABASE_URL (PostgreSQL/MySQL/etc.)
 # ---------------------------------------------------------------------------
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DB_PATH = os.path.join(BASE_DIR, "cashio.db")
-DB_BAK_PATH = os.path.join(BASE_DIR, "cashio.db.bak")
-DB_URL = f"sqlite:///{DB_PATH}"
+
+DATABASE_URL = os.environ.get("DATABASE_URL")
+
+if DATABASE_URL:
+    # Some platforms (e.g. Heroku, Neon, Supabase) provide "postgres://", which SQLAlchemy 1.4+ requires as "postgresql://"
+    if DATABASE_URL.startswith("postgres://"):
+        DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+    DB_URL = DATABASE_URL
+    DB_PATH = None
+    DB_BAK_PATH = None
+else:
+    # On Vercel, serverless filesystem /var/task is read-only; use writable /tmp
+    if os.environ.get("VERCEL"):
+        DB_PATH = "/tmp/cashio.db"
+        DB_BAK_PATH = "/tmp/cashio.db.bak"
+    else:
+        DB_PATH = os.path.join(BASE_DIR, "cashio.db")
+        DB_BAK_PATH = os.path.join(BASE_DIR, "cashio.db.bak")
+    DB_URL = f"sqlite:///{DB_PATH}"
 
 # ---------------------------------------------------------------------------
-# Engine — check_same_thread=False is required for FastAPI (multiple threads)
+# Engine — check_same_thread=False is required for SQLite with multi-threaded FastAPI
 # ---------------------------------------------------------------------------
-engine = create_engine(
-    DB_URL,
-    connect_args={"check_same_thread": False},
-    # Echo SQL to stdout in dev; set to False in production
-    echo=False,
-)
+is_sqlite = DB_URL.startswith("sqlite")
+
+engine_kwargs = {"echo": False}
+if is_sqlite:
+    engine_kwargs["connect_args"] = {"check_same_thread": False}
+
+engine = create_engine(DB_URL, **engine_kwargs)
 
 # Enable SQLite WAL mode for better concurrency (readers don't block writers)
-@event.listens_for(engine, "connect")
-def set_sqlite_pragma(dbapi_conn, connection_record):
-    cursor = dbapi_conn.cursor()
-    cursor.execute("PRAGMA journal_mode=WAL")
-    cursor.execute("PRAGMA foreign_keys=ON")
-    cursor.close()
+if is_sqlite:
+    @event.listens_for(engine, "connect")
+    def set_sqlite_pragma(dbapi_conn, connection_record):
+        cursor = dbapi_conn.cursor()
+        try:
+            cursor.execute("PRAGMA journal_mode=WAL")
+            cursor.execute("PRAGMA foreign_keys=ON")
+        except Exception:
+            pass
+        finally:
+            cursor.close()
 
 
 # ---------------------------------------------------------------------------
@@ -64,8 +87,11 @@ def get_db():
 # ---------------------------------------------------------------------------
 def backup_db():
     """Copy cashio.db → cashio.db.bak for safety."""
-    if os.path.exists(DB_PATH):
-        shutil.copy2(DB_PATH, DB_BAK_PATH)
+    if DB_PATH and DB_BAK_PATH and os.path.exists(DB_PATH):
+        try:
+            shutil.copy2(DB_PATH, DB_BAK_PATH)
+        except OSError:
+            pass
 
 
 # ---------------------------------------------------------------------------
